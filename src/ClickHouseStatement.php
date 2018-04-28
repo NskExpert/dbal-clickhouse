@@ -11,6 +11,7 @@
 
 namespace FOD\DBALClickHouse;
 
+use ClickHouseDB\Client;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -65,8 +66,9 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
     /**
      * @param \ClickHouseDB\Client $client
      * @param string $statement
+     * @param AbstractPlatform $platform
      */
-    public function __construct(\ClickHouseDB\Client $client, $statement, AbstractPlatform $platform)
+    public function __construct(Client $client, $statement, AbstractPlatform $platform)
     {
         $this->smi2CHClient = $client;
         $this->statement = $statement;
@@ -137,6 +139,7 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -217,6 +220,7 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function fetchColumn($columnIndex = 0)
     {
@@ -246,11 +250,17 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
         $this->types[$column] = $type;
     }
 
+    /**
+     * @throws ClickHouseException
+     */
     function errorCode()
     {
         throw new ClickHouseException('You need to implement ClickHouseStatement::' . __METHOD__ . '()');
     }
 
+    /**
+     * @throws ClickHouseException
+     */
     function errorInfo()
     {
         throw new ClickHouseException('You need to implement ClickHouseStatement::' . __METHOD__ . '()');
@@ -258,6 +268,7 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
     /**
      * {@inheritDoc}
+     * @throws ClickHouseException
      */
     public function execute($params = null)
     {
@@ -313,6 +324,8 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
     /**
      * @param mixed
+     * @return int|mixed|string
+     * @throws ClickHouseException
      */
     protected function getTypedParam($key)
     {

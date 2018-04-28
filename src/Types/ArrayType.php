@@ -40,8 +40,9 @@ abstract class ArrayType extends Type
 
     /**
      * Register Array types to the type map.
-     * 
+     * @param AbstractPlatform $platform
      * @return void
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function registerArrayTypes(AbstractPlatform $platform)
     {

@@ -45,6 +45,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function getIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -61,14 +62,16 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function getSmallIntTypeDeclarationSQL(array $columnDef)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef) . 'Int16';
+        return 'Int16' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -230,6 +233,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
     {
@@ -238,6 +242,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getRtrimExpression($str)
     {
@@ -246,6 +251,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getLtrimExpression($str)
     {
@@ -306,6 +312,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getIsNullExpression($expression)
     {
@@ -314,6 +321,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getIsNotNullExpression($expression)
     {
@@ -458,6 +466,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getForUpdateSQL()
     {
@@ -466,6 +475,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function appendLockHint($fromClause, $lockMode)
     {
@@ -474,6 +484,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getReadLockSQL()
     {
@@ -482,6 +493,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getWriteLockSQL()
     {
@@ -490,6 +502,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getDropIndexSQL($index, $table = null)
     {
@@ -498,6 +511,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getDropConstraintSQL($constraint, $table)
     {
@@ -506,6 +520,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
@@ -514,6 +529,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
@@ -522,6 +538,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
@@ -649,6 +666,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
     {
@@ -721,6 +739,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -729,6 +748,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -737,6 +757,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
@@ -745,6 +766,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -778,6 +800,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getCheckDeclarationSQL(array $definition)
     {
@@ -786,6 +809,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
@@ -794,6 +818,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
@@ -803,6 +828,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
@@ -811,6 +837,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
@@ -819,6 +846,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
@@ -827,6 +855,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
@@ -835,6 +864,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getUniqueFieldDeclarationSQL()
     {
@@ -961,6 +991,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getDefaultTransactionIsolationLevel()
     {
@@ -1029,6 +1060,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
     {
@@ -1037,6 +1069,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
@@ -1051,6 +1084,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function createSavePoint($savepoint)
     {
@@ -1059,6 +1093,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function releaseSavePoint($savepoint)
     {
@@ -1067,6 +1102,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function rollbackSavePoint($savepoint)
     {

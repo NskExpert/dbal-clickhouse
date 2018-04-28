@@ -5,13 +5,12 @@
  *
  * (c) FriendsOfDoctrine <https://github.com/FriendsOfDoctrine/>.
  *
- * For the full copyright and license inflormation, please view the LICENSE
+ * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace FOD\DBALClickHouse;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 
 /**
@@ -23,6 +22,7 @@ class Connection extends \Doctrine\DBAL\Connection
 {
     /**
      * {@inheritDoc}
+     * @throws ClickHouseException
      */
     public function executeUpdate($query, array $params = array(), array $types = array())
     {
@@ -34,8 +34,12 @@ class Connection extends \Doctrine\DBAL\Connection
 
         return parent::executeUpdate($query, $params, $types);
     }
+
     /**
-     * @throws \Exception
+     * @param $tableExpression
+     * @param array $identifier
+     * @param array $types
+     * @throws DBALException
      */
     public function delete($tableExpression, array $identifier, array $types = array())
     {
@@ -43,7 +47,11 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param $tableExpression
+     * @param array $data
+     * @param array $identifier
+     * @param array $types
+     * @throws DBALException
      */
     public function update($tableExpression, array $data, array $identifier, array $types = array())
     {
@@ -55,7 +63,8 @@ class Connection extends \Doctrine\DBAL\Connection
      */
 
     /**
-     * @throws \Exception
+     * @param $level
+     * @throws DBALException
      */
     public function setTransactionIsolation($level)
     {
@@ -79,7 +88,8 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param \Closure $func
+     * @throws DBALException
      */
     public function transactional(\Closure $func)
     {
@@ -87,7 +97,8 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param $nestTransactionsWithSavepoints
+     * @throws DBALException
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
@@ -107,6 +118,7 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function beginTransaction()
     {
+        //Remove
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -127,7 +139,8 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param $savepoint
+     * @throws DBALException
      */
     public function createSavepoint($savepoint)
     {
@@ -135,7 +148,8 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param $savepoint
+     * @throws DBALException
      */
     public function releaseSavepoint($savepoint)
     {
@@ -143,7 +157,8 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @param $savepoint
+     * @throws DBALException
      */
     public function rollbackSavepoint($savepoint)
     {

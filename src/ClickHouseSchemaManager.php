@@ -37,6 +37,7 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -54,6 +55,7 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     * @throws \Doctrine\DBAL\DBALException
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {

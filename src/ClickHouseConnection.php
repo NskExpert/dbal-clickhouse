@@ -11,7 +11,6 @@
 
 namespace FOD\DBALClickHouse;
 
-use Doctrine\DBAL\ConnectionException;
 use ClickHouseDB\Client as Smi2CHClient;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -56,6 +55,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function prepare($prepareString)
     {
@@ -68,6 +68,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function query()
     {
@@ -92,6 +93,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
+     * @throws \Exception
      */
     public function exec($statement)
     {

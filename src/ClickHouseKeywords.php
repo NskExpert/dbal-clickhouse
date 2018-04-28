@@ -246,7 +246,6 @@ class ClickHouseKeywords extends KeywordList
             'XOR',
             'YEAR_MONTH',
             'ZEROFILL',
-
             'FIXEDSTRING',
             'STRING',
             'MINUS',

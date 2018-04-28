@@ -20,6 +20,7 @@ class Driver implements \Doctrine\DBAL\Driver
 {
     /**
      * {@inheritDoc}
+     * @throws ClickHouseException
      */
     public function connect(array $params, $user = null, $password = null, array $driverOptions = [])
     {
@@ -78,6 +79,7 @@ class Driver implements \Doctrine\DBAL\Driver
 
     /**
      * {@inheritDoc}
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {

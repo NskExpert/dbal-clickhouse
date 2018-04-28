@@ -55,6 +55,7 @@ class ArrayDateType extends ArrayType
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         $strings = [];
+        /** @var \DateTime $datetime */
         foreach ($value as $datetime) {
             $strings[] = "'" . $datetime->format($platform->getDateFormatString()) . "'";
         }
