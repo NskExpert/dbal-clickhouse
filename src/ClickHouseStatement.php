@@ -310,16 +310,17 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
      */
     protected function processViaSMI2($sql)
     {
+        //TODO catch in Driver and convert into DBALExceptions all SMI2's exceptions
         //smi2 CH Driver works only with FORMAT JSON, so add suffix if it is SELECT statement
         $sql = trim($sql);
         if (strtoupper(substr($sql, 0, 6)) === 'SELECT') {
             if (strtoupper(substr($sql, -11)) !== 'FORMAT JSON') {
                 $sql .= ' FORMAT JSON';
             }
+            $this->rows = $this->smi2CHClient->select($sql)->rows();
+        }else {
+            $this->rows = $this->smi2CHClient->write($sql)->rows();
         }
-
-        //TODO catch in Driver and convert into DBALExceptions all SMI2's exceptions
-        $this->rows = $this->smi2CHClient->write($sql)->rows();
     }
 
     /**
