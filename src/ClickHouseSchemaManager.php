@@ -76,11 +76,9 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
             $unsigned = true;
         }
 
-        if (! isset($tableColumn['name'])) {
+        if (!isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
-
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         $default = null;
         //TODO process not only DEFAULT type, but ALIAS and MATERIALIZED too
@@ -89,21 +87,21 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
         }
 
         $options = array(
-            'length'        => $length,
-            'notnull'       => true,
-            'default'       => $default,
-            'primary'       => false,
-            'fixed'         => $fixed,
-            'unsigned'      => $unsigned,
+            'length' => $length,
+            'notnull' => true,
+            'default' => $default,
+            'primary' => false,
+            'fixed' => $fixed,
+            'unsigned' => $unsigned,
             'autoincrement' => false,
-            'comment'       => null,
+            'comment' => null,
         );
 
-        return  new Column(
-                        $tableColumn['name'],
-                        Type::getType($this->_platform->getDoctrineTypeMapping($dbType)),
-                        $options
-                );
+        return new Column(
+            $tableColumn['name'],
+            Type::getType($this->_platform->getDoctrineTypeMapping($dbType)),
+            $options
+        );
     }
 
     /**

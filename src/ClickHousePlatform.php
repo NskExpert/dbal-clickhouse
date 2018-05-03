@@ -13,6 +13,7 @@ namespace FOD\DBALClickHouse;
 
 use Doctrine\DBAL\DBALException;
 
+use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\StringType;
@@ -75,8 +76,9 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        if (! empty($columnDef['autoincrement']))
+        if (!empty($columnDef['autoincrement'])) {
             throw new \Exception('Clickhouse do not support AUTO_INCREMENT fields');
+        }
 
         return empty($columnDef['unsigned']) ? '' : 'U';
     }
@@ -129,8 +131,8 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed
-                ? 'FixedString(' . $length . ')'
-                : 'String';
+            ? 'FixedString(' . $length . ')'
+            : 'String';
     }
 
     /**
@@ -295,7 +297,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $length = null)
     {
-        if ( null === $length ) {
+        if (null === $length) {
             throw new \InvalidArgumentException("'length' argument must be a constant");
         }
 
@@ -545,18 +547,20 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
         $engine = !empty($options['engine']) ? $options['engine'] : 'ReplacingMergeTree';
         $engineOptions = '';
 
-        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+        if (isset($options['uniqueConstraints']) && !empty($options['uniqueConstraints'])) {
             throw DBALException::notSupported('uniqueConstraints');
         }
 
-        if (isset($options['indexes']) && ! empty($options['indexes'])) {
+        if (isset($options['indexes']) && !empty($options['indexes'])) {
             throw DBALException::notSupported('uniqueConstraints');
         }
 
         /**
          * MergeTree* specific section
          */
-        if ( in_array($engine, ['MergeTree', 'CollapsingMergeTree', 'SummingMergeTree', 'AggregatingMergeTree', 'ReplacingMergeTree'], true) ) {
+        if (in_array($engine,
+            ['MergeTree', 'CollapsingMergeTree', 'SummingMergeTree', 'AggregatingMergeTree', 'ReplacingMergeTree'],
+            true)) {
             $indexGranularity = !empty($options['indexGranularity']) ? $options['indexGranularity'] : 8192;
 
             /**
@@ -566,9 +570,9 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                 'type' => Type::getType('date'),
                 'default' => 'today()',
             ];
-            if (! empty($options['eventDateProviderColumn']) ) {
+            if (!empty($options['eventDateProviderColumn'])) {
                 $options['eventDateProviderColumn'] = trim($options['eventDateProviderColumn']);
-                if (! isset($columns[$options['eventDateProviderColumn']]) ) {
+                if (!isset($columns[$options['eventDateProviderColumn']])) {
                     throw new \Exception('Table `' . $tableName . '` has not column with name: `' . $options['eventDateProviderColumn']);
                 }
 
@@ -583,7 +587,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                     $columns[$options['eventDateProviderColumn']]['type'] instanceof DecimalType ||
                     (
                         $columns[$options['eventDateProviderColumn']]['type'] instanceof StringType &&
-                        ! $columns[$options['eventDateProviderColumn']]['fixed']
+                        !$columns[$options['eventDateProviderColumn']]['fixed']
                     )
                 ) {
                     $dateColumnParams['default'] =
@@ -593,21 +597,22 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                             ('toDate(toDateTime(' . $options['eventDateProviderColumn'] . '))') :
                             ('toDate(' . $options['eventDateProviderColumn'] . ')');
                 } else {
-                    throw new \Exception('Column `' . $options['eventDateProviderColumn'] . '` with type `'.$columns[$options['eventDateProviderColumn']]['type']->getName().'`, defined in `eventDateProviderColumn` option, has not valid DBAL Type');
+                    throw new \Exception('Column `' . $options['eventDateProviderColumn'] . '` with type `' . $columns[$options['eventDateProviderColumn']]['type']->getName() . '`, defined in `eventDateProviderColumn` option, has not valid DBAL Type');
                 }
             }
-            if ( empty($options['eventDateColumn']) ) {
-                $dateColumns = array_filter($columns, function($column) {
-                    return $column['type'] instanceof DateType;
+            if (empty($options['eventDateColumn'])) {
+                $dateColumns = array_filter($columns, function ($column) {
+                    return $column['type'] instanceof DateType && $column['name']!=='EventDate';
                 });
 
                 if ($dateColumns) {
-                    throw new \Exception('Table `' . $tableName . '` has DateType columns: `' . implode('`, `', array_keys($dateColumns)) . '`, but no one of them is setted as `eventDateColumn` with $table->addOption("eventDateColumn", "%eventDateColumnName%")');
+                    throw new \Exception('Table `' . $tableName . '` has DateType columns: `' . implode('`, `',
+                            array_keys($dateColumns)) . '`, but no one of them is setted as `eventDateColumn` with $table->addOption("eventDateColumn", "%eventDateColumnName%")');
                 }
 
                 $eventDateColumnName = 'EventDate';
             } else {
-                if ( isset($columns[$options['eventDateColumn']]) ) {
+                if (isset($columns[$options['eventDateColumn']])) {
                     if ($columns[$options['eventDateColumn']]['type'] instanceof DateType) {
                         $eventDateColumnName = $options['eventDateColumn'];
                         unset($columns[$options['eventDateColumn']]);
@@ -624,27 +629,28 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
             /**
              * Primary key section
              */
-            if ( empty($options['primary']) ) {
+            if (empty($options['primary'])) {
                 throw new \Exception('You need specify PrimaryKey for MergeTree* tables');
             }
 
-            $engineOptions = '(' . $eventDateColumnName . ', (' . implode(', ', array_unique(array_values($options['primary']))) . '), ' . $indexGranularity;
+            $engineOptions = '(' . $eventDateColumnName . ', (' . implode(', ',
+                    array_unique(array_values($options['primary']))) . '), ' . $indexGranularity;
 
             /**
              * any specific MergeTree* table parameters
              */
             if ('ReplacingMergeTree' === $engine) {
-                if (! empty($options['versionColumn'])) {
-                    if (! isset($columns[$options['versionColumn']]) ) {
+                if (!empty($options['versionColumn'])) {
+                    if (!isset($columns[$options['versionColumn']])) {
                         throw new \Exception('If you specify `versionColumn` for ReplacingMergeTree table -- you must add this column manually (any of UInt*, Date or DateTime types)');
                     }
 
                     if (
-                        ! $columns[$options['versionColumn']]['type'] instanceof IntegerType &&
-                        ! $columns[$options['versionColumn']]['type'] instanceof BigIntType &&
-                        ! $columns[$options['versionColumn']]['type'] instanceof SmallIntType &&
-                        ! $columns[$options['versionColumn']]['type'] instanceof DateType &&
-                        ! $columns[$options['versionColumn']]['type'] instanceof DateTimeType
+                        !$columns[$options['versionColumn']]['type'] instanceof IntegerType &&
+                        !$columns[$options['versionColumn']]['type'] instanceof BigIntType &&
+                        !$columns[$options['versionColumn']]['type'] instanceof SmallIntType &&
+                        !$columns[$options['versionColumn']]['type'] instanceof DateType &&
+                        !$columns[$options['versionColumn']]['type'] instanceof DateTimeType
                     ) {
                         throw new \Exception('For ReplacingMergeTree tables `versionColumn` must be any of UInt* family, or Date, or DateTime types. ' . get_class($columns[$options['versionColumn']]['type']) . ' given.');
                     }
@@ -698,7 +704,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                 continue;
             }
 
-            $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
+            $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
@@ -718,7 +724,8 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                 continue;
             }
 
-            $queryParts[] =  'MODIFY COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[] = 'MODIFY COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this),
+                    $columnArray);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -728,9 +735,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
         $sql = [];
         $tableSql = [];
 
-        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ',
+                        $queryParts);
             }
         }
 
@@ -1045,11 +1053,12 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
-        if ( is_null($limit) )
+        if (is_null($limit)) {
             return $query;
+        }
 
         $query .= ' LIMIT ';
-        if (! is_null($offset)) {
+        if (!is_null($offset)) {
             $query .= $offset . ', ';
         }
 
@@ -1119,21 +1128,31 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        if (! isset($field['default'])) {
+        if (!isset($field['default'])) {
             return '';
         }
 
         $default = " DEFAULT '" . $field['default'] . "'";
-        if ( isset($field['type']) ) {
-            if (in_array((string)$field['type'], ['Integer', 'SmallInt', 'Float']) || ('BigInt' === $field['type'] && \PDO::PARAM_INT === Type::getType('BigInt')->getBindingType())) {
+        if (isset($field['type'])) {
+            if (in_array((string)$field['type'], [
+                    'Integer',
+                    'SmallInt',
+                    'Float'
+                ]) || ('BigInt' === $field['type'] && \PDO::PARAM_INT === Type::getType('BigInt')->getBindingType())) {
                 $default = ' DEFAULT ' . $field['default'];
-            } else if (in_array((string)$field['type'], ['DateTime']) && $field['default'] == $this->getCurrentTimestampSQL()) {
-                $default = ' DEFAULT ' . $this->getCurrentTimestampSQL();
-            } else if ('Date' == (string)$field['type']) { // TODO check if string matches constant date like 'dddd-yy-mm' and quote it
-                $default = ' DEFAULT ' . $field['default'];
+            } else {
+                if (in_array((string)$field['type'],
+                        ['DateTime']) && $field['default'] == $this->getCurrentTimestampSQL()) {
+                    $default = ' DEFAULT ' . $this->getCurrentTimestampSQL();
+                } else {
+                    if ('Date' == (string)$field['type']) { // TODO check if string matches constant date like 'dddd-yy-mm' and quote it
+                        $default = ' DEFAULT ' . $field['default'];
+                    }
+                }
             }
         }
 
