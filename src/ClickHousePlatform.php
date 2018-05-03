@@ -630,7 +630,9 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
              * Primary key section
              */
             if (empty($options['primary'])) {
-                throw new \Exception('You need specify PrimaryKey for MergeTree* tables');
+                //TODO: !!!!!!!!!!replace with primary key from ORM annotation
+                $options['primary']=['version'];
+                //throw new \Exception('You need specify PrimaryKey for MergeTree* tables');
             }
 
             $engineOptions = '(' . $eventDateColumnName . ', (' . implode(', ',
