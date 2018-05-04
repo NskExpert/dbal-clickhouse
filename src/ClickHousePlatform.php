@@ -547,14 +547,6 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
         $engine = !empty($options['engine']) ? $options['engine'] : 'ReplacingMergeTree';
         $engineOptions = '';
 
-        if (isset($options['uniqueConstraints']) && !empty($options['uniqueConstraints'])) {
-            throw DBALException::notSupported('uniqueConstraints');
-        }
-
-        if (isset($options['indexes']) && !empty($options['indexes'])) {
-            throw DBALException::notSupported('uniqueConstraints');
-        }
-
         /**
          * MergeTree* specific section
          */
