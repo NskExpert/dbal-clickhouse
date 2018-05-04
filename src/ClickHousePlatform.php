@@ -481,7 +481,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        throw DBALException::notSupported(__METHOD__);
+        //throw DBALException::notSupported(__METHOD__);
     }
 
     /**
@@ -490,7 +490,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getReadLockSQL()
     {
-        throw DBALException::notSupported(__METHOD__);
+        //throw DBALException::notSupported(__METHOD__);
     }
 
     /**
@@ -499,7 +499,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getWriteLockSQL()
     {
-        throw DBALException::notSupported(__METHOD__);
+        //throw DBALException::notSupported(__METHOD__);
     }
 
     /**
