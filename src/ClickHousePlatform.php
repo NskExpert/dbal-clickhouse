@@ -1182,7 +1182,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
         $c = $this->getStringLiteralQuoteCharacter();
 
-        return $c . mb_ereg_replace($c, '\\'.$c, $str) . $c;
+        return $c . addslashes($str) . $c;
     }
 
     /**

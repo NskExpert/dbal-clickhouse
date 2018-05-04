@@ -283,8 +283,15 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
         }
 
         $sql = $this->statement;
+
+        //Replace params with {%%param_name_value%%}
         foreach (array_keys($this->values) as $key) {
-            $sql = preg_replace('/(' . (is_int($key) ? '\?' : ':' . $key) . ')/i', $this->getTypedParam($key), $sql, 1);
+            $sql = preg_replace('/(' . (is_int($key) ? '\?' : ':' . $key) . ')/i', "{%%{$key}_value%%}", $sql, 1);
+        }
+
+        //Replace {%%param_name_value%%} with values
+        foreach(array_keys($this->values) as $key){
+            $sql = preg_replace('/\{\%\%'.$key.'_value\%\%\}/i', $this->getTypedParam($key), $sql, 1);
         }
 
         $this->processViaSMI2($sql);
@@ -332,7 +339,6 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
     /**
      * @param mixed
      * @return int|mixed|string
-     * @throws ClickHouseException
      */
     protected function getTypedParam($key)
     {
@@ -373,10 +379,6 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
         if ($this->values[$key]===null){
             return 'null';
-        }
-
-        if (\PDO::PARAM_NULL === $type) {
-            throw new ClickHouseException('NULLs are not supported by ClickHouse');
         }
 
         if (\PDO::PARAM_INT === $type) {
