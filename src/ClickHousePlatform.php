@@ -481,7 +481,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        //throw DBALException::notSupported(__METHOD__);
+        return $fromClause;
     }
 
     /**
