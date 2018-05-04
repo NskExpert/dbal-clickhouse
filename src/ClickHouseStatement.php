@@ -371,6 +371,10 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
             }
         }
 
+        if ($this->values[$key]===null){
+            return 'null';
+        }
+
         if (\PDO::PARAM_NULL === $type) {
             throw new ClickHouseException('NULLs are not supported by ClickHouse');
         }
