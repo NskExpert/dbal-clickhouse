@@ -12,6 +12,7 @@
 namespace FOD\DBALClickHouse;
 
 use ClickHouseDB\Client;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -19,7 +20,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  *
  * @author Mochalygin <a@mochalygin.ru>
  */
-class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class ClickHouseStatement implements \IteratorAggregate, Statement
 {
     /**
      * @var \ClickHouseDB\Client
@@ -291,7 +292,7 @@ class ClickHouseStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\S
 
         //Replace {%%param_name_value%%} with values
         foreach(array_keys($this->values) as $key){
-            $sql = preg_replace('/\{\%\%'.$key.'_value\%\%\}/i', $this->getTypedParam($key), $sql, 1);
+            $sql = preg_replace('/\{\%\%'.$key.'_value\%\%\}/i', str_replace('\\','\\\\',$this->getTypedParam($key)), $sql, 1);
         }
 
         $this->processViaSMI2($sql);
