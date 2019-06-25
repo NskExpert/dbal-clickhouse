@@ -13,6 +13,9 @@ namespace FOD\DBALClickHouse;
 
 use ClickHouseDB\Client as Smi2CHClient;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Exception;
+use LogicException;
+use PDO;
 
 /**
  * ClickHouse implementation for the Connection interface.
@@ -34,14 +37,21 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
     /**
      * Connection constructor
      *
-     * @param string $username      The username to use when connecting.
-     * @param string $password      The password to use when connecting.
+     * @param string $username The username to use when connecting.
+     * @param string $password The password to use when connecting.
      * @param string $host
      * @param int $port
      * @param string $database
+     * @param AbstractPlatform|null $platform
      */
-    public function __construct($username = 'default', $password = '', $host = 'localhost', $port = 8123, $database = 'default', AbstractPlatform $platform = null)
-    {
+    public function __construct(
+        $username = 'default',
+        $password = '',
+        $host = 'localhost',
+        $port = 8123,
+        $database = 'default',
+        AbstractPlatform $platform = null
+    ) {
         $this->smi2CHClient = new Smi2CHClient([
             'host' => $host,
             'port' => $port,
@@ -55,12 +65,12 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function prepare($prepareString)
     {
-        if (! $this->smi2CHClient) {
-            throw new \Exception('ClickHouse\Client was not initialized');
+        if (!$this->smi2CHClient) {
+            throw new Exception('ClickHouse\Client was not initialized');
         }
 
         return new ClickHouseStatement($this->smi2CHClient, $prepareString, $this->platform);
@@ -68,7 +78,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function query()
     {
@@ -82,9 +92,9 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
     /**
      * {@inheritDoc}
      */
-    public function quote($input, $type = \PDO::PARAM_STR)
+    public function quote($input, $type = PDO::PARAM_STR)
     {
-        if (\PDO::PARAM_INT == $type) {
+        if (PDO::PARAM_INT == $type) {
             return $input;
         }
 
@@ -93,7 +103,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function exec($statement)
     {
@@ -106,9 +116,11 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
-    {
-        throw new \LogicException('Unable to get last insert id in ClickHouse');
+    public function lastInsertId(
+        /** @noinspection PhpUnusedParameterInspection */
+        $name = null
+    ) {
+        throw new LogicException('Unable to get last insert id in ClickHouse');
     }
 
     /**
@@ -116,7 +128,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function beginTransaction()
     {
-        throw new \LogicException('Transactions are not allowed in ClickHouse');
+        throw new LogicException('Transactions are not allowed in ClickHouse');
     }
 
     /**
@@ -124,7 +136,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function commit()
     {
-        throw new \LogicException('Transactions are not allowed in ClickHouse');
+        throw new LogicException('Transactions are not allowed in ClickHouse');
     }
 
     /**
@@ -132,7 +144,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function rollBack()
     {
-        throw new \LogicException('Transactions are not allowed in ClickHouse');
+        throw new LogicException('Transactions are not allowed in ClickHouse');
     }
 
     /**
@@ -140,7 +152,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function errorCode()
     {
-        throw new \LogicException('You need to implement ClickHouseConnection::errorCode()');
+        throw new LogicException('You need to implement ClickHouseConnection::errorCode()');
     }
 
     /**
@@ -148,7 +160,6 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function errorInfo()
     {
-        throw new \LogicException('You need to implement ClickHouseConnection::errorInfo()');
+        throw new LogicException('You need to implement ClickHouseConnection::errorInfo()');
     }
-
 }

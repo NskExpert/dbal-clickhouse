@@ -11,6 +11,8 @@
 
 namespace FOD\DBALClickHouse;
 
+use Doctrine\DBAL\DBALException;
+
 /**
  * ClickHouse Driver
  *
@@ -82,7 +84,7 @@ class Driver implements \Doctrine\DBAL\Driver
 
     /**
      * {@inheritDoc}
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {

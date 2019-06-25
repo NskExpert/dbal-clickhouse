@@ -11,19 +11,23 @@
 
 namespace FOD\DBALClickHouse;
 
+use ArrayIterator;
 use ClickHouseDB\Client;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Exception;
+use IteratorAggregate;
+use PDO;
 
 /**
  * ClickHouse Statement
  *
  * @author Mochalygin <a@mochalygin.ru>
  */
-class ClickHouseStatement implements \IteratorAggregate, Statement
+class ClickHouseStatement implements IteratorAggregate, Statement
 {
     /**
-     * @var \ClickHouseDB\Client
+     * @var Client
      */
     protected $smi2CHClient;
 
@@ -55,17 +59,17 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     protected $types = [];
 
     /**
-     * @var \ArrayIterator|null
+     * @var ArrayIterator|null
      */
     protected $iterator = null;
 
     /**
      * @var integer
      */
-    private $fetchMode = \PDO::FETCH_BOTH;
+    private $fetchMode = PDO::FETCH_BOTH;
 
     /**
-     * @param \ClickHouseDB\Client $client
+     * @param Client $client
      * @param string $statement
      * @param AbstractPlatform $platform
      */
@@ -82,7 +86,7 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     public function getIterator()
     {
         if (!$this->iterator) {
-            $this->iterator = new \ArrayIterator($this->rows);
+            $this->iterator = new ArrayIterator($this->rows);
         }
 
         return $this->iterator;
@@ -112,8 +116,13 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritDoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
-    {
+    public function setFetchMode(
+        $fetchMode,
+        /** @noinspection PhpUnusedParameterInspection */
+        $arg2 = null,
+        /** @noinspection PhpUnusedParameterInspection */
+        $arg3 = null
+    ) {
         $this->fetchMode = $this->assumeFetchMode($fetchMode);
         return true;
     }
@@ -126,13 +135,13 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     {
         $mode = $fetchMode ?: $this->fetchMode;
         if (!in_array($mode, [
-            \PDO::FETCH_ASSOC,
-            \PDO::FETCH_NUM,
-            \PDO::FETCH_BOTH,
-            \PDO::FETCH_OBJ,
-            \PDO::FETCH_KEY_PAIR,
+            PDO::FETCH_ASSOC,
+            PDO::FETCH_NUM,
+            PDO::FETCH_BOTH,
+            PDO::FETCH_OBJ,
+            PDO::FETCH_KEY_PAIR,
         ])) {
-            $mode = \PDO::FETCH_BOTH;
+            $mode = PDO::FETCH_BOTH;
         }
 
         return $mode;
@@ -140,10 +149,15 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
-    {
+    public function fetch(
+        $fetchMode = null,
+        /** @noinspection PhpUnusedParameterInspection */
+        $cursorOrientation = PDO::FETCH_ORI_NEXT,
+        /** @noinspection PhpUnusedParameterInspection */
+        $cursorOffset = 0
+    ) {
         $data = $this->getIterator()->current();
 
         if (null === $data) {
@@ -152,21 +166,21 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
 
         $this->getIterator()->next();
 
-        if (\PDO::FETCH_NUM === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_NUM === $this->assumeFetchMode($fetchMode)) {
             return array_values($data);
         }
 
-        if (\PDO::FETCH_BOTH === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_BOTH === $this->assumeFetchMode($fetchMode)) {
             return array_values($data) + $data;
         }
 
-        if (\PDO::FETCH_OBJ === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_OBJ === $this->assumeFetchMode($fetchMode)) {
             return (object)$data;
         }
 
-        if (\PDO::FETCH_KEY_PAIR === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_KEY_PAIR === $this->assumeFetchMode($fetchMode)) {
             if (count($data) < 2) {
-                throw new \Exception('To fetch in \PDO::FETCH_KEY_PAIR mode, result set must contain at least 2 columns');
+                throw new Exception('To fetch in \PDO::FETCH_KEY_PAIR mode, result set must contain at least 2 columns');
             }
 
             return [array_shift($data) => array_shift($data)];
@@ -178,9 +192,14 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritDoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
-    {
-        if (\PDO::FETCH_NUM === $this->assumeFetchMode($fetchMode)) {
+    public function fetchAll(
+        $fetchMode = null,
+        /** @noinspection PhpUnusedParameterInspection */
+        $fetchArgument = null,
+        /** @noinspection PhpUnusedParameterInspection */
+        $ctorArgs = null
+    ) {
+        if (PDO::FETCH_NUM === $this->assumeFetchMode($fetchMode)) {
             return array_map(
                 function ($row) {
                     return array_values($row);
@@ -189,7 +208,7 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
             );
         }
 
-        if (\PDO::FETCH_BOTH === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_BOTH === $this->assumeFetchMode($fetchMode)) {
             return array_map(
                 function ($row) {
                     return array_values($row) + $row;
@@ -198,7 +217,7 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
             );
         }
 
-        if (\PDO::FETCH_OBJ === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_OBJ === $this->assumeFetchMode($fetchMode)) {
             return array_map(
                 function ($row) {
                     return (object)$row;
@@ -207,11 +226,11 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
             );
         }
 
-        if (\PDO::FETCH_KEY_PAIR === $this->assumeFetchMode($fetchMode)) {
+        if (PDO::FETCH_KEY_PAIR === $this->assumeFetchMode($fetchMode)) {
             return array_map(
                 function ($row) {
                     if (count($row) < 2) {
-                        throw new \Exception('To fetch in \PDO::FETCH_KEY_PAIR mode, result set must contain at least 2 columns');
+                        throw new Exception('To fetch in \PDO::FETCH_KEY_PAIR mode, result set must contain at least 2 columns');
                     }
 
                     return [array_shift($row) => array_shift($row)];
@@ -227,11 +246,11 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function fetchColumn($columnIndex = 0)
     {
-        if ($elem = $this->fetch(\PDO::FETCH_NUM)) {
+        if ($elem = $this->fetch(PDO::FETCH_NUM)) {
 
             return isset($elem[$columnIndex]) ? $elem[$columnIndex] : $elem[0];
         }
@@ -251,8 +270,13 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritDoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
-    {
+    public function bindParam(
+        $column,
+        &$variable,
+        $type = null,
+        /** @noinspection PhpUnusedParameterInspection */
+        $length = null
+    ) {
         $this->values[$column] = &$variable;
         $this->types[$column] = $type;
     }
@@ -275,7 +299,8 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
 
     /**
      * {@inheritDoc}
-     * @throws ClickHouseException
+     * @param null $params
+     * @return bool
      */
     public function execute($params = null)
     {
@@ -291,8 +316,9 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
         }
 
         //Replace {%%param_name_value%%} with values
-        foreach(array_keys($this->values) as $key){
-            $sql = preg_replace('/\{\%\%'.$key.'_value\%\%\}/i', str_replace('\\','\\\\',$this->getTypedParam($key)), $sql, 1);
+        foreach (array_keys($this->values) as $key) {
+            $sql = preg_replace('/\{\%\%' . $key . '_value\%\%\}/i',
+                str_replace('\\', '\\\\', $this->getTypedParam($key)), $sql, 1);
         }
 
         $this->processViaSMI2($sql);
@@ -348,13 +374,12 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
         // if param type was not setted - trying to get db-type by php-var-type
         if (is_null($type)) {
             if (is_bool($this->values[$key])) {
-                $type = \PDO::PARAM_BOOL;
+                $type = PDO::PARAM_BOOL;
             } else {
                 if (is_int($this->values[$key]) || is_float($this->values[$key])) {
-                    $type = \PDO::PARAM_INT;
+                    $type = PDO::PARAM_INT;
                 } else {
                     if (is_array($this->values[$key])) {
-
                         /*
                          * ClickHouse Arrays
                          */
@@ -378,15 +403,15 @@ class ClickHouseStatement implements \IteratorAggregate, Statement
             }
         }
 
-        if ($this->values[$key]===null){
+        if ($this->values[$key] === null) {
             return 'null';
         }
 
-        if (\PDO::PARAM_INT === $type) {
+        if (PDO::PARAM_INT === $type) {
             return $this->values[$key];
         }
 
-        if (\PDO::PARAM_BOOL === $type) {
+        if (PDO::PARAM_BOOL === $type) {
             return (int)(bool)$this->values[$key];
         }
 

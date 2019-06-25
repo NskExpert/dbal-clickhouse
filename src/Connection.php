@@ -11,7 +11,11 @@
 
 namespace FOD\DBALClickHouse;
 
+use Closure;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\ParameterType;
+use Exception;
 
 /**
  * ClickHouse Connection
@@ -39,11 +43,78 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $tableExpression
      * @param array $identifier
      * @param array $types
+     * @return int
+     * @throws ClickHouseException
+     * @throws DBALException
+     * @throws InvalidArgumentException
+     */
+    public function delete(
+        /** @noinspection PhpUnusedParameterInspection */
+        $tableExpression,
+        array $identifier,
+        array $types = array()
+    ) {
+        if (empty($identifier)) {
+            throw InvalidArgumentException::fromEmptyCriteria();
+        }
+
+        [$columns, $values, $conditions] = $this->gatherConditions($identifier);
+
+        return $this->executeUpdate(
+            'ALTER TABLE ' . $tableExpression . ' DELETE WHERE ' . implode(' AND ', $conditions),
+            $values,
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
+        );
+    }
+
+    /**
+     * Gathers conditions for an update or delete call.
+     *
+     * @param mixed[] $identifiers Input array of columns to values
+     *
+     * @return string[][] a triplet with:
+     *                    - the first key being the columns
+     *                    - the second key being the values
+     *                    - the third key being the conditions
      * @throws DBALException
      */
-    public function delete($tableExpression, array $identifier, array $types = array())
+    private function gatherConditions(array $identifiers)
     {
-        throw DBALException::notSupported(__METHOD__);
+        $columns    = [];
+        $values     = [];
+        $conditions = [];
+
+        foreach ($identifiers as $columnName => $value) {
+            if ($value === null) {
+                $conditions[] = $this->getDatabasePlatform()->getIsNullExpression($columnName);
+                continue;
+            }
+
+            $columns[]    = $columnName;
+            $values[]     = $value;
+            $conditions[] = $columnName . ' = ?';
+        }
+
+        return [$columns, $values, $conditions];
+    }
+
+    /**
+     * Extract ordered type list from an ordered column list and type map.
+     *
+     * @param string[]       $columnList
+     * @param int[]|string[] $types
+     *
+     * @return int[]|string[]
+     */
+    private function extractTypeValues(array $columnList, array $types)
+    {
+        $typeValues = [];
+
+        foreach ($columnList as $columnIndex => $columnName) {
+            $typeValues[] = $types[$columnName] ?? ParameterType::STRING;
+        }
+
+        return $typeValues;
     }
 
     /**
@@ -53,8 +124,13 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param array $types
      * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = array())
-    {
+    public function update(
+        /** @noinspection PhpUnusedParameterInspection */
+        $tableExpression,
+        array $data,
+        array $identifier,
+        array $types = array()
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -66,13 +142,15 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $level
      * @throws DBALException
      */
-    public function setTransactionIsolation($level)
-    {
+    public function setTransactionIsolation(
+        /** @noinspection PhpUnusedParameterInspection */
+        $level
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTransactionIsolation()
     {
@@ -80,7 +158,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTransactionNestingLevel()
     {
@@ -88,11 +166,13 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @param \Closure $func
+     * @param Closure $func
      * @throws DBALException
      */
-    public function transactional(\Closure $func)
-    {
+    public function transactional(
+        /** @noinspection PhpUnusedParameterInspection */
+        Closure $func
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -100,13 +180,15 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $nestTransactionsWithSavepoints
      * @throws DBALException
      */
-    public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
-    {
+    public function setNestTransactionsWithSavepoints(
+        /** @noinspection PhpUnusedParameterInspection */
+        $nestTransactionsWithSavepoints
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getNestTransactionsWithSavepoints()
     {
@@ -114,7 +196,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function beginTransaction()
     {
@@ -122,7 +204,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function commit()
     {
@@ -130,7 +212,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function rollBack()
     {
@@ -141,8 +223,10 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $savepoint
      * @throws DBALException
      */
-    public function createSavepoint($savepoint)
-    {
+    public function createSavepoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -150,8 +234,10 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $savepoint
      * @throws DBALException
      */
-    public function releaseSavepoint($savepoint)
-    {
+    public function releaseSavepoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -159,13 +245,15 @@ class Connection extends \Doctrine\DBAL\Connection
      * @param $savepoint
      * @throws DBALException
      */
-    public function rollbackSavepoint($savepoint)
-    {
+    public function rollbackSavepoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function setRollbackOnly()
     {
@@ -173,7 +261,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function isRollbackOnly()
     {

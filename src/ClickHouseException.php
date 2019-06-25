@@ -11,9 +11,11 @@
 
 namespace FOD\DBALClickHouse;
 
+use Exception;
+
 /**
  * Specific Exception for ClickHouse
  *
  * @author Mochalygin <a@mochalygin.ru>
  */
-class ClickHouseException extends \Exception {}
+class ClickHouseException extends Exception {}

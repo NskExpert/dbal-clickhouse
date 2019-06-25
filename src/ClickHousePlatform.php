@@ -13,6 +13,9 @@ namespace FOD\DBALClickHouse;
 
 use Doctrine\DBAL\DBALException;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\TrimMode;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\FloatType;
@@ -28,25 +31,30 @@ use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
+use Exception;
+use InvalidArgumentException;
+use PDO;
 
 /**
  * Provides the behavior, features and SQL dialect of the ClickHouse database platform.
  *
  * @author Mochalygin <a@mochalygin.ru>
  */
-class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
+class ClickHousePlatform extends AbstractPlatform
 {
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef)
-    {
+    public function getBooleanTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $columnDef
+    ) {
         return 'UInt8';
     }
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function getIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -56,14 +64,16 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef)
-    {
+    public function getBigIntTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $columnDef
+    ) {
         return 'String';
     }
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSmallIntTypeDeclarationSQL(array $columnDef)
     {
@@ -72,12 +82,12 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         if (!empty($columnDef['autoincrement'])) {
-            throw new \Exception('Clickhouse do not support AUTO_INCREMENT fields');
+            throw new Exception('Clickhouse do not support AUTO_INCREMENT fields');
         }
 
         return empty($columnDef['unsigned']) ? '' : 'U';
@@ -99,12 +109,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
             'uint64' => 'bigint',
             'float32' => 'decimal',
             'float64' => 'float',
-
             'string' => 'string',
             'fixedstring' => 'string',
             'date' => 'date',
             'datetime' => 'datetime',
-
             'array(int8)' => 'array',
             'array(int16)' => 'array',
             'array(int32)' => 'array',
@@ -115,11 +123,9 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
             'array(uint64)' => 'array',
             'array(float32)' => 'array',
             'array(float64)' => 'array',
-
             'array(string)' => 'array',
             'array(date)' => 'array',
             'array(datetime)' => 'array',
-
             'enum8' => 'string',
             'enum16' => 'string',
         ];
@@ -138,24 +144,31 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
-    {
+    protected function getBinaryTypeDeclarationSQLSnippet(
+        /** @noinspection PhpUnusedParameterInspection */
+        $length,
+        $fixed
+    ) {
         return 'String';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
-    {
+    public function getClobTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $field
+    ) {
         return 'String';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
-    {
+    public function getBlobTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $field
+    ) {
         return 'String';
     }
 
@@ -186,8 +199,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCountExpression($column)
-    {
+    public function getCountExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $column
+    ) {
         return 'COUNT()';
     }
 
@@ -237,8 +252,12 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
-    {
+    public function getTrimExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $str,
+        $pos = TrimMode::UNSPECIFIED,
+        $char = false
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -246,8 +265,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getRtrimExpression($str)
-    {
+    public function getRtrimExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $str
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -255,8 +276,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getLtrimExpression($str)
-    {
+    public function getLtrimExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $str
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -279,8 +302,12 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
-    {
+    public function getLocateExpression(
+        $str,
+        $substr,
+        /** @noinspection PhpUnusedParameterInspection */
+        $startPos = false
+    ) {
         return 'positionUTF8(' . $str . ', ' . $substr . ')';
     }
 
@@ -298,7 +325,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     public function getSubstringExpression($value, $from, $length = null)
     {
         if (null === $length) {
-            throw new \InvalidArgumentException("'length' argument must be a constant");
+            throw new InvalidArgumentException("'length' argument must be a constant");
         }
 
         return 'substringUTF8(' . $value . ', ' . $from . ', ' . $length . ')';
@@ -316,8 +343,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getIsNullExpression($expression)
-    {
+    public function getIsNullExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $expression
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -325,8 +354,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getIsNotNullExpression($expression)
-    {
+    public function getIsNotNullExpression(
+        /** @noinspection PhpUnusedParameterInspection */
+        $expression
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -477,7 +508,9 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws DBALException
+     * @param $fromClause
+     * @param $lockMode
+     * @return string
      */
     public function appendLockHint($fromClause, $lockMode)
     {
@@ -486,7 +519,6 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws DBALException
      */
     public function getReadLockSQL()
     {
@@ -495,7 +527,6 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws DBALException
      */
     public function getWriteLockSQL()
     {
@@ -524,8 +555,11 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getDropForeignKeySQL($foreignKey, $table)
-    {
+    public function getDropForeignKeySQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $foreignKey,
+        $table
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -540,7 +574,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
+     * @throws Exception
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
@@ -565,7 +599,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
             if (!empty($options['eventDateProviderColumn'])) {
                 $options['eventDateProviderColumn'] = trim($options['eventDateProviderColumn']);
                 if (!isset($columns[$options['eventDateProviderColumn']])) {
-                    throw new \Exception('Table `' . $tableName . '` has not column with name: `' . $options['eventDateProviderColumn']);
+                    throw new Exception('Table `' . $tableName . '` has not column with name: `' . $options['eventDateProviderColumn']);
                 }
 
                 if (
@@ -589,16 +623,16 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                             ('toDate(toDateTime(' . $options['eventDateProviderColumn'] . '))') :
                             ('toDate(' . $options['eventDateProviderColumn'] . ')');
                 } else {
-                    throw new \Exception('Column `' . $options['eventDateProviderColumn'] . '` with type `' . $columns[$options['eventDateProviderColumn']]['type']->getName() . '`, defined in `eventDateProviderColumn` option, has not valid DBAL Type');
+                    throw new Exception('Column `' . $options['eventDateProviderColumn'] . '` with type `' . $columns[$options['eventDateProviderColumn']]['type']->getName() . '`, defined in `eventDateProviderColumn` option, has not valid DBAL Type');
                 }
             }
             if (empty($options['eventDateColumn'])) {
                 $dateColumns = array_filter($columns, function ($column) {
-                    return $column['type'] instanceof DateType && $column['name']!=='EventDate';
+                    return $column['type'] instanceof DateType && $column['name'] !== 'EventDate';
                 });
 
                 if ($dateColumns) {
-                    throw new \Exception('Table `' . $tableName . '` has DateType columns: `' . implode('`, `',
+                    throw new Exception('Table `' . $tableName . '` has DateType columns: `' . implode('`, `',
                             array_keys($dateColumns)) . '`, but no one of them is setted as `eventDateColumn` with $table->addOption("eventDateColumn", "%eventDateColumnName%")');
                 }
 
@@ -609,7 +643,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                         $eventDateColumnName = $options['eventDateColumn'];
                         unset($columns[$options['eventDateColumn']]);
                     } else {
-                        throw new \Exception('In table `' . $tableName . '` you have set field `' . $options['eventDateColumn'] . '` (' . get_class($columns[$options['eventDateColumn']]['type']) . ') as `eventDateColumn`, but it is not instance of DateType');
+                        throw new Exception('In table `' . $tableName . '` you have set field `' . $options['eventDateColumn'] . '` (' . get_class($columns[$options['eventDateColumn']]['type']) . ') as `eventDateColumn`, but it is not instance of DateType');
                     }
                 } else {
                     $eventDateColumnName = $options['eventDateColumn'];
@@ -623,7 +657,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
              */
             if (empty($options['primary'])) {
                 //TODO: !!!!!!!!!!replace with primary key from ORM annotation
-                $options['primary']=['version'];
+                $options['primary'] = ['version'];
                 //throw new \Exception('You need specify PrimaryKey for MergeTree* tables');
             }
 
@@ -636,7 +670,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
             if ('ReplacingMergeTree' === $engine) {
                 if (!empty($options['versionColumn'])) {
                     if (!isset($columns[$options['versionColumn']])) {
-                        throw new \Exception('If you specify `versionColumn` for ReplacingMergeTree table -- you must add this column manually (any of UInt*, Date or DateTime types)');
+                        throw new Exception('If you specify `versionColumn` for ReplacingMergeTree table -- you must add this column manually (any of UInt*, Date or DateTime types)');
                     }
 
                     if (
@@ -646,7 +680,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                         !$columns[$options['versionColumn']]['type'] instanceof DateType &&
                         !$columns[$options['versionColumn']]['type'] instanceof DateTimeType
                     ) {
-                        throw new \Exception('For ReplacingMergeTree tables `versionColumn` must be any of UInt* family, or Date, or DateTime types. ' . get_class($columns[$options['versionColumn']]['type']) . ' given.');
+                        throw new Exception('For ReplacingMergeTree tables `versionColumn` must be any of UInt* family, or Date, or DateTime types. ' . get_class($columns[$options['versionColumn']]['type']) . ' given.');
                     }
 
                     $engineOptions .= ', ' . $columns[$options['versionColumn']]['name'];
@@ -668,16 +702,21 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
-    {
+    public function getCreateForeignKeySQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        ForeignKeyConstraint $foreignKey,
+        $table
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff)
-    {
+    public function getAlterTableSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        TableDiff $diff
+    ) {
         $columnSql = [];
         $queryParts = [];
         if ($diff->newName !== false) {
@@ -706,7 +745,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                 continue;
             }
 
-            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+            /* @var $columnDiff ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
 
@@ -743,8 +782,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
-    {
+    protected function getPreAlterTableIndexForeignKeySQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        TableDiff $diff
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -752,8 +793,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
-    {
+    protected function getPostAlterTableIndexForeignKeySQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        TableDiff $diff
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -761,8 +804,12 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
-    {
+    protected function getRenameIndexSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $oldIndexName,
+        Index $index,
+        $tableName
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -770,13 +817,16 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
-    {
+    protected function _getAlterTableIndexForeignKeySQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        TableDiff $diff
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
      * {@inheritDoc}
+     * @throws DBALException
      */
     public function getColumnDeclarationSQL($name, array $field)
     {
@@ -795,8 +845,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDecimalTypeDeclarationSQL(array $columnDef)
-    {
+    public function getDecimalTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $columnDef
+    ) {
         return 'String';
     }
 
@@ -804,8 +856,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getCheckDeclarationSQL(array $definition)
-    {
+    public function getCheckDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $definition
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -813,8 +867,11 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
-    {
+    public function getUniqueConstraintDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $name,
+        Index $index
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -822,8 +879,11 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getIndexDeclarationSQL($name, Index $index)
-    {
+    public function getIndexDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $name,
+        Index $index
+    ) {
         // Index declaration in statements like CREATE TABLE is not supported.
         throw DBALException::notSupported(__METHOD__);
     }
@@ -832,8 +892,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
-    {
+    public function getForeignKeyDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        ForeignKeyConstraint $foreignKey
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -841,8 +903,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
-    {
+    public function getAdvancedForeignKeyOptionsSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        ForeignKeyConstraint $foreignKey
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -850,8 +914,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getForeignKeyReferentialActionSQL($action)
-    {
+    public function getForeignKeyReferentialActionSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $action
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -859,8 +925,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey)
-    {
+    public function getForeignKeyBaseDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        ForeignKeyConstraint $foreignKey
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -957,37 +1025,47 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
-    {
+    public function getDateTimeTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $fieldDeclaration
+    ) {
         return 'DateTime';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
-    {
+    public function getDateTimeTzTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $fieldDeclaration
+    ) {
         return 'DateTime';
     }
 
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
-    {
+    public function getTimeTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $fieldDeclaration
+    ) {
         return 'String';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
-    {
+    public function getDateTypeDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $fieldDeclaration
+    ) {
         return 'Date';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getFloatDeclarationSQL(array $fieldDeclaration)
-    {
+    public function getFloatDeclarationSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        array $fieldDeclaration
+    ) {
         return 'Float64';
     }
 
@@ -1065,8 +1143,11 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
-    {
+    public function getEmptyIdentityInsertSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $tableName,
+        $identifierColumnName
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -1074,8 +1155,11 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function getTruncateTableSQL($tableName, $cascade = false)
-    {
+    public function getTruncateTableSQL(
+        /** @noinspection PhpUnusedParameterInspection */
+        $tableName,
+        $cascade = false
+    ) {
         /**
          * For MergeTree* engines may be done with next workaround:
          *
@@ -1089,8 +1173,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function createSavePoint($savepoint)
-    {
+    public function createSavePoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -1098,8 +1184,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function releaseSavePoint($savepoint)
-    {
+    public function releaseSavePoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -1107,8 +1195,10 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      * {@inheritDoc}
      * @throws DBALException
      */
-    public function rollbackSavePoint($savepoint)
-    {
+    public function rollbackSavePoint(
+        /** @noinspection PhpUnusedParameterInspection */
+        $savepoint
+    ) {
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -1117,7 +1207,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'FOD\DBALClickHouse\ClickHouseKeywords';
+        return ClickHouseKeywords::class;
     }
 
     /**
@@ -1136,7 +1226,7 @@ class ClickHousePlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
                     'Integer',
                     'SmallInt',
                     'Float'
-                ]) || ('BigInt' === $field['type'] && \PDO::PARAM_INT === Type::getType('BigInt')->getBindingType())) {
+                ]) || ('BigInt' === $field['type'] && PDO::PARAM_INT === Type::getType('BigInt')->getBindingType())) {
                 $default = ' DEFAULT ' . $field['default'];
             } else {
                 if (in_array((string)$field['type'],

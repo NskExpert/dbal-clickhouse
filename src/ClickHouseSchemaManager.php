@@ -11,6 +11,7 @@
 
 namespace FOD\DBALClickHouse;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Column;
@@ -37,7 +38,7 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -55,7 +56,7 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
