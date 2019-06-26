@@ -23,6 +23,7 @@ abstract class ArrayNumType extends ArrayType
      */
     protected function getBitness()
     {
+        /** @noinspection PhpUndefinedClassConstantInspection */
         return static::BITNESS;
     }
 }

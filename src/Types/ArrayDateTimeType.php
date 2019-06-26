@@ -11,7 +11,9 @@
 
 namespace FOD\DBALClickHouse\Types;
 
+use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PDO;
 
 /**
  * Array(DateTime) Type class
@@ -43,7 +45,7 @@ class ArrayDateTimeType extends ArrayType
     {
         $datetimes = [];
         foreach ($value as $stringDatetime) {
-            $datetimes[] = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $stringDatetime);
+            $datetimes[] = DateTime::createFromFormat($platform->getDateTimeFormatString(), $stringDatetime);
         }
 
         return $datetimes;
@@ -55,7 +57,7 @@ class ArrayDateTimeType extends ArrayType
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         $strings = [];
-        /** @var \DateTime $datetime */
+        /** @var DateTime $datetime */
         foreach ($value as $datetime) {
             $strings[] = "'" . $datetime->format($platform->getDateTimeFormatString()) . "'";
         }
@@ -68,6 +70,6 @@ class ArrayDateTimeType extends ArrayType
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_INT;
+        return PDO::PARAM_INT;
     }
 }

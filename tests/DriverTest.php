@@ -11,6 +11,7 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use Doctrine\DBAL\DBALException;
 use FOD\DBALClickHouse\ClickHouseConnection;
 use FOD\DBALClickHouse\ClickHousePlatform;
 use FOD\DBALClickHouse\ClickHouseSchemaManager;
@@ -27,6 +28,9 @@ class DriverTest extends TestCase
     /** @var  Connection */
     protected $connection;
 
+    /**
+     * @throws DBALException
+     */
     public function setUp()
     {
         $this->connection = CreateConnectionTest::createConnection();
@@ -48,7 +52,10 @@ class DriverTest extends TestCase
 
     public function testGetSchemaManager()
     {
-        $this->assertInstanceOf(ClickHouseSchemaManager::class, $this->connection->getDriver()->getSchemaManager($this->connection));
+        $this->assertInstanceOf(
+            ClickHouseSchemaManager::class,
+            $this->connection->getDriver()->getSchemaManager($this->connection)
+        );
     }
 
     public function testGetName()
@@ -58,6 +65,7 @@ class DriverTest extends TestCase
 
     public function testGetDatabase()
     {
+        /** @noinspection PhpUndefinedConstantInspection */
         $this->assertEquals(phpunit_ch_dbname, $this->connection->getDriver()->getDatabase($this->connection));
     }
 }

@@ -11,8 +11,10 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,11 +24,17 @@ use PHPUnit\Framework\TestCase;
  */
 class CreateConnectionTest extends TestCase
 {
+    /**
+     * @throws DBALException
+     */
     public function testCreateConnectionWithRightParams()
     {
         $this->assertInstanceOf(Connection::class, self::createConnection());
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testCreateConnectionWithBadParams()
     {
         $this->expectException(DBALException::class);
@@ -36,10 +44,12 @@ class CreateConnectionTest extends TestCase
     /**
      * @param null|array $params
      * @return Connection
+     * @throws DBALException
      */
     public static function createConnection($params = null)
     {
         if (null === $params) {
+            /** @noinspection PhpUndefinedConstantInspection */
             $params = [
                 'host' => phpunit_ch_host,
                 'port' => phpunit_ch_port,
@@ -50,6 +60,6 @@ class CreateConnectionTest extends TestCase
                 'wrapperClass' => phpunit_ch_wrapper_class,
             ];
         }
-        return \Doctrine\DBAL\DriverManager::getConnection($params, new \Doctrine\DBAL\Configuration());
+        return DriverManager::getConnection($params, new Configuration());
     }
 }

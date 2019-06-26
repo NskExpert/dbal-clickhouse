@@ -11,6 +11,7 @@
 
 namespace FOD\DBALClickHouse\Types;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -42,7 +43,7 @@ abstract class ArrayType extends Type
      * Register Array types to the type map.
      * @param AbstractPlatform $platform
      * @return void
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public static function registerArrayTypes(AbstractPlatform $platform)
     {

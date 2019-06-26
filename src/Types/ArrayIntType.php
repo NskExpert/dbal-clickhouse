@@ -11,7 +11,6 @@
 
 namespace FOD\DBALClickHouse\Types;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**

@@ -11,7 +11,9 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use Doctrine\DBAL\DBALException;
 use FOD\DBALClickHouse\Connection;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +26,9 @@ class InsertTest extends TestCase
     /** @var  Connection */
     protected $connection;
 
+    /**
+     * @throws DBALException
+     */
     public function setUp()
     {
         $this->connection = CreateConnectionTest::createConnection();
@@ -43,22 +48,34 @@ class InsertTest extends TestCase
         }
     }
 
+    /**
+     * @throws DBALException
+     */
     public function tearDown()
     {
         $this->connection->exec('DROP TABLE test_insert_table');
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testExecInsert()
     {
         $this->connection->exec("INSERT INTO test_insert_table(id, payload) VALUES (1, 'v1'), (2, 'v2')");
-        $this->assertEquals([['payload' => 'v1'], ['payload' => 'v2']], $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (1, 2) ORDER BY id"));
+        $this->assertEquals([['payload' => 'v1'], ['payload' => 'v2']],
+            $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (1, 2) ORDER BY id"));
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFunctionInsert()
     {
         $this->connection->insert('test_insert_table', ['id' => 3, 'payload' => 'v3']);
-        $this->connection->insert('test_insert_table', ['id' => 4, 'payload' => 'v4'], ['id' => \PDO::PARAM_INT, 'payload' => \PDO::PARAM_STR]);
-        $this->assertEquals([['payload' => 'v3'], ['payload' => 'v4']], $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (3, 4) ORDER BY id"));
+        $this->connection->insert('test_insert_table', ['id' => 4, 'payload' => 'v4'],
+            ['id' => PDO::PARAM_INT, 'payload' => PDO::PARAM_STR]);
+        $this->assertEquals([['payload' => 'v3'], ['payload' => 'v4']],
+            $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (3, 4) ORDER BY id"));
     }
 
     public function testInsertViaQueryBuilder()
@@ -69,7 +86,7 @@ class InsertTest extends TestCase
             ->insert('test_insert_table')
             ->setValue('id', ':id')
             ->setValue('payload', ':payload')
-            ->setParameter('id', 5, \PDO::PARAM_INT)
+            ->setParameter('id', 5, PDO::PARAM_INT)
             ->setParameter('payload', 'v5')
             ->execute();
 
@@ -78,6 +95,7 @@ class InsertTest extends TestCase
             ->setParameter('payload', 'v6')
             ->execute();
 
-        $this->assertEquals([['payload' => 'v5'], ['payload' => 'v6']], $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (5, 6) ORDER BY id"));
+        $this->assertEquals([['payload' => 'v5'], ['payload' => 'v6']],
+            $this->connection->fetchAll("SELECT payload from test_insert_table WHERE id IN (5, 6) ORDER BY id"));
     }
 }

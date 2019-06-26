@@ -12,6 +12,7 @@
 namespace FOD\DBALClickHouse\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PDO;
 
 /**
  * Array(String) Type class
@@ -57,6 +58,6 @@ class ArrayStringType extends ArrayType
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_INT;
+        return PDO::PARAM_INT;
     }
 }

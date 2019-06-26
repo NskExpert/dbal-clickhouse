@@ -11,7 +11,9 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use Doctrine\DBAL\DBALException;
 use FOD\DBALClickHouse\Connection;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +26,9 @@ class SelectTest extends TestCase
     /** @var  Connection */
     protected $connection;
 
+    /**
+     * @throws DBALException
+     */
     public function setUp()
     {
         $this->connection = CreateConnectionTest::createConnection();
@@ -46,11 +51,17 @@ class SelectTest extends TestCase
         $this->connection->exec("INSERT INTO test_select_table(id, payload, hits) VALUES (1, 'v1', 101), (2, 'v2', 202), (3, 'v3', 303), (4, 'v4', 404), (5, 'v4', 505)");
     }
 
+    /**
+     * @throws DBALException
+     */
     public function tearDown()
     {
         $this->connection->exec('DROP TABLE test_select_table');
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchBothSelect()
     {
         $results = [];
@@ -61,89 +72,125 @@ class SelectTest extends TestCase
         $this->assertEquals([['id' => 3, 'payload' => 'v3', 'hits' => 303]], $results);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchAssocSelect()
     {
         $results = [];
         $stmt = $this->connection->query('SELECT id, hits FROM test_select_table WHERE id IN (3, 4)');
-        while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $results[] = $result;
         }
         $this->assertEquals([['id' => 3, 'hits' => 303], ['id' => 4, 'hits' => 404]], $results);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchNumSelect()
     {
         $stmt = $this->connection->query('SELECT MAX(hits) FROM test_select_table');
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(['MAX(hits)' => 505], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchObjSelect()
     {
         $stmt = $this->connection->query('SELECT MAX(hits) as maxHits FROM test_select_table');
-        $result = $stmt->fetch(\PDO::FETCH_OBJ);
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
         $this->assertEquals((object)['maxHits' => 505], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchKeyPairSelect()
     {
         $stmt = $this->connection->query("SELECT id, hits FROM test_select_table WHERE id = 2");
-        $result = $stmt->fetch(\PDO::FETCH_KEY_PAIR);
+        $result = $stmt->fetch(PDO::FETCH_KEY_PAIR);
         $this->assertEquals([2 => 202], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchAllBothSelect()
     {
         $stmt = $this->connection->query("SELECT * FROM test_select_table WHERE id IN (1, 3)");
         $result = $stmt->fetchAll();
 
-        $this->assertEquals([[
-            'id' => 1,
-            'payload' => 'v1',
-            'hits' => 101,
-        ], [
-            'id' => 3,
-            'payload' => 'v3',
-            'hits' => 303,
-        ]], $result);
+        $this->assertEquals([
+            [
+                'id' => 1,
+                'payload' => 'v1',
+                'hits' => 101,
+            ],
+            [
+                'id' => 3,
+                'payload' => 'v3',
+                'hits' => 303,
+            ]
+        ], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchAllNumSelect()
     {
         $stmt = $this->connection->query("SELECT AVG(hits) FROM test_select_table");
-        $result = $stmt->fetchAll(\PDO::FETCH_NUM);
+        $result = $stmt->fetchAll(PDO::FETCH_NUM);
 
         $this->assertEquals([[303]], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchAllObjSelect()
     {
         $stmt = $this->connection->query("SELECT * FROM test_select_table WHERE id IN (2, 4)");
-        $result = $stmt->fetchAll(\PDO::FETCH_OBJ);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-        $this->assertEquals([(object)[
-            'id' => 2,
-            'payload' => 'v2',
-            'hits' => 202,
-        ], (object)[
-            'id' => 4,
-            'payload' => 'v4',
-            'hits' => 404,
-        ]], $result);
+        $this->assertEquals([
+            (object)[
+                'id' => 2,
+                'payload' => 'v2',
+                'hits' => 202,
+            ],
+            (object)[
+                'id' => 4,
+                'payload' => 'v4',
+                'hits' => 404,
+            ]
+        ], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchAllKeyPairSelect()
     {
         $stmt = $this->connection->query("SELECT payload, hits FROM test_select_table WHERE id IN (2, 4) ORDER BY id");
-        $result = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $result = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        $this->assertEquals([[
-            'v2' => 202,
-        ], [
-            'v4' => 404,
-        ]], $result);
+        $this->assertEquals([
+            [
+                'v2' => 202,
+            ],
+            [
+                'v4' => 404,
+            ]
+        ], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchColumnValidOffsetSelect()
     {
         $stmt = $this->connection->query("SELECT payload, hits FROM test_select_table WHERE id > 1 ORDER BY id LIMIT 3");
@@ -155,6 +202,9 @@ class SelectTest extends TestCase
         $this->assertEquals([202, 303, 404], $results);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testFetchColumnInvalidOffsetSelect()
     {
         $stmt = $this->connection->query("SELECT payload, hits FROM test_select_table WHERE id > 1 ORDER BY id");
@@ -173,22 +223,28 @@ class SelectTest extends TestCase
             ->select('payload, uniq(hits) as uniques')
             ->from('test_select_table')
             ->where('id > :id')
-            ->setParameter('id', 2, \PDO::PARAM_INT)
+            ->setParameter('id', 2, PDO::PARAM_INT)
             ->groupBy('payload')
             ->orderBy('payload')
             ->setMaxResults(2)
             ->execute()
             ->fetchAll();
 
-        $this->assertEquals([[
-            'payload' => 'v3',
-            'uniques' => '1',
-        ], [
-            'payload' => 'v4',
-            'uniques' => '2',
-        ]], $result);
+        $this->assertEquals([
+            [
+                'payload' => 'v3',
+                'uniques' => '1',
+            ],
+            [
+                'payload' => 'v4',
+                'uniques' => '2',
+            ]
+        ], $result);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testDynamicParametersSelect()
     {
         $stmt = $this->connection->prepare('SELECT payload, AVG(hits) AS avg_hits FROM test_select_table WHERE id > :id GROUP BY payload');

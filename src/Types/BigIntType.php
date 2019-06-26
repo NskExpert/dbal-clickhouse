@@ -12,6 +12,7 @@
 namespace FOD\DBALClickHouse\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PDO;
 
 /**
  * BigInt Type
@@ -25,7 +26,7 @@ class BigIntType extends \Doctrine\DBAL\Types\BigIntType
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_INT;
+        return PDO::PARAM_INT;
     }
 
     /**

@@ -11,6 +11,8 @@
 
 namespace FOD\DBALClickHouse\Tests;
 
+use DateTime;
+use Doctrine\DBAL\DBALException;
 use FOD\DBALClickHouse\Connection;
 use FOD\DBALClickHouse\Types\ArrayType;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +28,7 @@ class ArraysTest extends TestCase
     protected $connection;
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function setUp()
     {
@@ -35,7 +37,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function tearDown()
     {
@@ -43,7 +45,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayInt8()
     {
@@ -53,7 +55,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayInt16()
     {
@@ -63,7 +65,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayInt32()
     {
@@ -73,7 +75,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayInt64()
     {
@@ -83,7 +85,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayUInt8()
     {
@@ -93,7 +95,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayUInt16()
     {
@@ -103,7 +105,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayUInt32()
     {
@@ -113,7 +115,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayUInt64()
     {
@@ -123,7 +125,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayFloat32()
     {
@@ -133,7 +135,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayFloat64()
     {
@@ -143,7 +145,7 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayString()
     {
@@ -153,22 +155,22 @@ class ArraysTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayDatetime()
     {
-        $dateTimeArray = [(new \DateTime('2000-01-01'))->format('Y-m-d H:i:s'), (new \DateTime('2017-05-05'))->format('Y-m-d H:i:s')];
+        $dateTimeArray = [(new DateTime('2000-01-01'))->format('Y-m-d H:i:s'), (new DateTime('2017-05-05'))->format('Y-m-d H:i:s')];
         $this->createTempTable('array(datetime)');
         $this->connection->insert('test_array_table', ['arr' => $dateTimeArray]);
         $this->assertEquals(['arr' => $dateTimeArray], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function testArrayDate()
     {
-        $datesArray = [(new \DateTime('2000-01-01'))->format('Y-m-d'), (new \DateTime('2017-05-05'))->format('Y-m-d')];
+        $datesArray = [(new DateTime('2000-01-01'))->format('Y-m-d'), (new DateTime('2017-05-05'))->format('Y-m-d')];
         $this->createTempTable('array(date)');
         $this->connection->insert('test_array_table', ['arr' => $datesArray]);
         $this->assertEquals(['arr' => $datesArray], current($this->connection->fetchAll('SELECT arr FROM test_array_table')));
@@ -176,7 +178,7 @@ class ArraysTest extends TestCase
 
     /**
      * @param $arrayType
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function createTempTable($arrayType)
     {
