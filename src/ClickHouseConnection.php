@@ -42,6 +42,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      * @param string $host
      * @param int $port
      * @param string $database
+     * @param array $driverOptions
      * @param AbstractPlatform|null $platform
      */
     public function __construct(
@@ -50,6 +51,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
         $host = 'localhost',
         $port = 8123,
         $database = 'default',
+        $driverOptions = [],
         AbstractPlatform $platform = null
     ) {
         $this->smi2CHClient = new Smi2CHClient([
@@ -57,7 +59,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
             'port' => $port,
             'username' => $username,
             'password' => $password,
-            'settings' => ['database' => $database]
+            'settings' => array_merge($driverOptions, ['database' => $database,]),
         ]);
 
         $this->platform = $platform;
