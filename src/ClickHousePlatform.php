@@ -1233,7 +1233,7 @@ class ClickHousePlatform extends AbstractPlatform
                         ['DateTime']) && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = ' DEFAULT ' . $this->getCurrentTimestampSQL();
                 } else {
-                    if ('Date' == (string)$field['type']) { // TODO check if string matches constant date like 'dddd-yy-mm' and quote it
+                    if ('Date' == (string)$field['type'] || (string)$field['type'] === '\\Date') { // TODO check if string matches constant date like 'dddd-yy-mm' and quote it
                         $default = ' DEFAULT ' . $field['default'];
                     }
                 }
