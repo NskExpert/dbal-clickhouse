@@ -59,8 +59,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
             'port' => $port,
             'username' => $username,
             'password' => $password,
-            'settings' => ['database' => $database,],
-        ], $driverOptions);
+        ], array_merge(['database' => $database,],$driverOptions));
 
         $this->platform = $platform;
     }
