@@ -30,10 +30,12 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function executeUpdate($query, array $params = array(), array $types = array())
     {
-        // ClickHouse has no UPDATE or DELETE statements
+        // ClickHouse has no UPDATE statements
         $command = strtoupper(substr(trim($query), 0, 6));
-        if ('UPDATE' == $command || 'DELETE' == $command) {
-            throw new ClickHouseException('UPDATE and DELETE are not allowed in ClickHouse');
+        if ('UPDATE' == $command) {
+            throw new ClickHouseException('UPDATE пока не реализовал');
+        } elseif ('DELETE' == $command) {
+            $query = 'ALTER TABLE ' . substr(trim($query), 0, 11);
         }
 
         return parent::executeUpdate($query, $params, $types);
