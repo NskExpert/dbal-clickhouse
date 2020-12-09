@@ -35,7 +35,17 @@ class Connection extends \Doctrine\DBAL\Connection
         if ('UPDATE' == $command) {
             throw new ClickHouseException('UPDATE пока не реализовал');
         } elseif ('DELETE' == $command) {
-            $query = 'ALTER TABLE ' . substr(trim($query), 11);
+            $query = substr(trim($query), 12);
+            $tableNameEndPosition = stripos($query,' ');
+            if ($tableNameEndPosition === false){
+                $query = $query.' DELETE';
+            }else {
+                $query =
+                    substr($query, 0, $tableNameEndPosition)
+                    . ' DELETE '
+                    . substr($query, $tableNameEndPosition + 1);
+            }
+            $query = 'ALTER TABLE ' . $query;
         }
 
         return parent::executeUpdate($query, $params, $types);
