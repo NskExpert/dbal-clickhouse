@@ -359,6 +359,20 @@ class ClickHouseStatement implements IteratorAggregate, Statement
             }
             $this->rows = $this->smi2CHClient->select($sql)->rows();
         } else {
+            $command = strtoupper(substr(trim($sql), 0, 6));
+            if ('DELETE' == $command) {
+                $sql = substr(trim($sql), 12);
+                $tableNameEndPosition = stripos($sql,' ');
+                if ($tableNameEndPosition === false){
+                    $sql = $sql.' DELETE';
+                }else {
+                    $sql =
+                        substr($sql, 0, $tableNameEndPosition)
+                        . ' DELETE '
+                        . substr($sql, $tableNameEndPosition + 1);
+                }
+                $sql = 'ALTER TABLE ' . $sql;
+            }
             $this->rows = $this->smi2CHClient->write($sql)->rows();
         }
     }
