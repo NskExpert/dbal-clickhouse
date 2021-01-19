@@ -13,6 +13,7 @@ namespace FOD\DBALClickHouse;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\View;
@@ -49,16 +50,51 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableIndexes($table)
+    public function listTableIndexes($table): array
     {
-        return [];
+        return [new Index('primary', ['version'], false, true, [], [])];
+    }
+
+    /**
+     * Lists the columns for a given table.
+     *
+     * In contrast to other libraries and to the old version of Doctrine,
+     * this column definition does try to contain the 'primary' field for
+     * the reason that it is not portable across different RDBMS. Use
+     * {@see listTableIndexes($tableName)} to retrieve the primary key
+     * of a table. We're a RDBMS specifies more details these are held
+     * in the platformDetails array.
+     *
+     * @param string $table The name of the table.
+     * @param string|null $database
+     *
+     * @return Column[]
+     * @throws DBALException
+     * @noinspection PhpMissingParamTypeInspection
+     */
+    public function listTableColumns($table, $database = null): array
+    {
+        if (!$database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableColumnsSQL($table, $database);
+
+        $tableColumns = $this->_conn->fetchAll($sql);
+
+        return array_filter(
+            $this->_getPortableTableColumnList($table, $database, $tableColumns),
+            function (Column $column) {
+                return $column->getName() !== 'EventDate';
+            }
+        );
     }
 
     /**
      * {@inheritdoc}
      * @throws DBALException
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition($tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -89,7 +125,7 @@ class ClickHouseSchemaManager extends AbstractSchemaManager
 
         $options = array(
             'length' => $length,
-            'notnull' => true,
+            'notnull' => $tableColumn['name'] === 'version',
             'default' => $default,
             'primary' => false,
             'fixed' => $fixed,
