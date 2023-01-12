@@ -1,5 +1,5 @@
 {
-  "name": "kanv19/dbal-clickhouse",
+  "name": "nskexpert/dbal-clickhouse",
   "type": "library",
   "version": "1.2.0",
   "description": "Doctrine DBAL driver for ClickHouse",
@@ -9,7 +9,7 @@
     "clickhouse",
     "driver"
   ],
-  "homepage": "http://github.com/kanv19/dbal-clickhouse",
+  "homepage": "http://github.com/nskexpert/dbal-clickhouse",
   "license": "MIT",
   "authors": [
     {

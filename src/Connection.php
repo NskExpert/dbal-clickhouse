@@ -28,7 +28,7 @@ class Connection extends \Doctrine\DBAL\Connection
      * {@inheritDoc}
      * @throws ClickHouseException
      */
-    public function executeUpdate($query, array $params = array(), array $types = array())
+    public function executeUpdate($query, array $params = array(), array $types = array()): int
     {
         // ClickHouse has no UPDATE statements
         $command = strtoupper(substr(trim($query), 0, 6));
