@@ -512,7 +512,7 @@ class ClickHousePlatform extends AbstractPlatform
      * @param $lockMode
      * @return string
      */
-    public function appendLockHint($fromClause, $lockMode)
+    public function appendLockHint($fromClause, $lockMode): string
     {
         return $fromClause;
     }
