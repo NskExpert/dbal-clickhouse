@@ -29,6 +29,7 @@ use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\DateTimeType;
 
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
 use Exception;
@@ -870,7 +871,7 @@ class ClickHousePlatform extends AbstractPlatform
     public function getUniqueConstraintDeclarationSQL(
         /** @noinspection PhpUnusedParameterInspection */
         $name,
-        Index $index
+        UniqueConstraint $constraint
     ) {
         throw DBALException::notSupported(__METHOD__);
     }
