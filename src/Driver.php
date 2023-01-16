@@ -12,6 +12,7 @@
 namespace FOD\DBALClickHouse;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 
 /**
  * ClickHouse Driver
@@ -100,5 +101,10 @@ class Driver implements \Doctrine\DBAL\Driver
         }
 
         return $conn->fetchColumn('SELECT currentDatabase() as dbname');
+    }
+
+    public function getExceptionConverter(): ExceptionConverter
+    {
+        return new ExceptionConverter();
     }
 }
