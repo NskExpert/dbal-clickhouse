@@ -1285,4 +1285,8 @@ class ClickHousePlatform extends AbstractPlatform
         return $c . addslashes($str) . $c;
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'currentDatabase()';
+    }
 }
