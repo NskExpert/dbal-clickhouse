@@ -68,7 +68,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      * {@inheritDoc}
      * @throws Exception
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString): \Doctrine\DBAL\Driver\Statement
     {
         if (!$this->smi2CHClient) {
             throw new Exception('ClickHouse\Client was not initialized');
