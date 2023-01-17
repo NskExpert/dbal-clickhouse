@@ -106,7 +106,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      * {@inheritDoc}
      * @throws Exception
      */
-    public function exec($statement)
+    public function exec($statement): int
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
