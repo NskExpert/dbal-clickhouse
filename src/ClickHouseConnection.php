@@ -81,7 +81,7 @@ class ClickHouseConnection implements \Doctrine\DBAL\Driver\Connection
      * {@inheritDoc}
      * @throws Exception
      */
-    public function query()
+    public function query(string $sql): \Doctrine\DBAL\Driver\Result
     {
         $args = func_get_args();
         $stmt = $this->prepare($args[0]);
